@@ -1,15 +1,11 @@
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
-import { readConfig } from "./config.js";
 
-const adapter = new PrismaPg({
-  connectionString: readConfig().databaseUrl,
-  connectionTimeoutMillis: 5000,
-  query_timeout: 5000,
-  max: 5,
-});
+const adapter = new PrismaPg({ connectionString: process.env["DATABASE_URL"] });
+
 export const prisma = new PrismaClient({ adapter });
 
-export async function checkDatabase() {
-  await prisma.$queryRaw`SELECT u.id, u.correo, u.clave, u.creado_en, p.nombres, p.apellidos, p.estado FROM grupo_1.usuarios u LEFT JOIN grupo_1.perfiles p ON p.id = u.id LIMIT 0`;
+export async function checkDatabase(): Promise<void> {
+  await prisma.$queryRaw`SELECT 1`;
 }

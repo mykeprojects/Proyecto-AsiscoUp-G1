@@ -1,5 +1,13 @@
 {
-  "nombre": "Ana Peña",
-  "correo": "registro-postman@example.com",
-  "clave": "ClaveDePrueba123!"
+  "nombres": "Ana",
+  "apellidos": "Peña",
+  "tipo_documento": "CC",
+  "numero_identificacion": "1000000001",
+  "telefono": "3001234567",
+  "direccion": "Carrera 1 # 2-3",
+  "fecha_nacimiento": "2000-01-15",
+  "correo_usuario": "registro-postman@example.com",
+  "contraseña_usuario": "ClaveDePrueba123!",
+  "acepta_terminos_condiciones": true,
+  "rol": "ESTUDIANTE"
 }

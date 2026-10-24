@@ -214,11 +214,44 @@ Resultado esperado:
 3. Supabase expone las tablas por internet a través de su propia API. Para que nadie pueda leer los correos y claves desde fuera de nuestro servidor, ir al menú izquierdo **SQL Editor**, pegar esto y clic en **Run**:
 
 ```sql
-alter table public.usuarios enable row level security;
-alter table public._prisma_migrations enable row level security;
+ALTER TABLE public.estado ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rol ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.permiso ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.usuario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sesion ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estado_usuario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rol_usuario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.permiso_rol ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public._prisma_migrations ENABLE ROW LEVEL SECURITY;
 ```
 
-> Esto no afecta a nuestro servidor: Prisma entra como administrador y sigue pudiendo leer y escribir.
+También puedes activar RLS automáticamente para todas las tablas existentes en
+`public`, incluyendo tablas creadas posteriormente antes de ejecutar este bloque:
+
+```sql
+DO $$
+DECLARE
+  tabla RECORD;
+BEGIN
+  FOR tabla IN
+    SELECT tablename
+    FROM pg_tables
+    WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format(
+      'ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',
+      tabla.tablename
+    );
+  END LOOP;
+END
+$$;
+```
+
+> Este bloque solo activa RLS; no crea políticas. Por eso las consultas directas
+> desde la API pública de Supabase quedan bloqueadas hasta crear políticas
+> explícitas. El servidor debe conectarse con la `DATABASE_URL` de backend y un
+> usuario con permisos suficientes (normalmente `postgres`/service role), que
+> puede seguir trabajando con estas tablas.
 
 ### A8. Escribir el código del login y el registro
 

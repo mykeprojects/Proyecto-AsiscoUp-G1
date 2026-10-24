@@ -10,9 +10,9 @@
     }
   ],
   "paths": {
-    "/auth/registro": {
+    "/api/auth/registro": {
       "post": {
-        "summary": "Registrar usuario del grupo 1",
+        "summary": "Registrar estudiante",
         "requestBody": {
           "required": true,
           "content": {
@@ -21,27 +21,41 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "nombre",
-                  "correo",
-                  "clave"
+                  "nombres",
+                  "apellidos",
+                  "numero_identificacion",
+                  "correo_usuario",
+                  "contraseña_usuario",
+                  "rol"
                 ],
                 "properties": {
-                  "nombre": {
+                  "nombres": {
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 150
+                    "minLength": 1
                   },
-                  "correo": {
+                  "apellidos": {
                     "type": "string",
-                    "format": "email",
-                    "maxLength": 254
+                    "minLength": 1
                   },
-                  "clave": {
+                  "numero_identificacion": {
                     "type": "string",
-                    "minLength": 12,
-                    "description": "Máximo 72 bytes UTF-8",
+                    "minLength": 1
+                  },
+                  "correo_usuario": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "contraseña_usuario": {
+                    "type": "string",
+                    "minLength": 8,
                     "writeOnly": true
-                  }
+                  },
+                  "tipo_documento": { "type": "string" },
+                  "telefono": { "type": "string" },
+                  "direccion": { "type": "string" },
+                  "fecha_nacimiento": { "type": "string", "format": "date" },
+                  "acepta_terminos_condiciones": { "type": "boolean" }
+                  ,"rol": { "type": "string", "example": "ESTUDIANTE" }
                 }
               }
             }
@@ -49,7 +63,7 @@
         },
         "responses": {
           "201": {
-            "description": "Usuario creado; devuelve id, nombre, correo y creadoEn, sin clave"
+            "description": "Usuario creado; devuelve datos públicos, sin contraseña"
           },
           "400": {
             "description": "Datos o JSON inválidos"
@@ -60,11 +74,81 @@
           "413": {
             "description": "Cuerpo mayor de 16 KB"
           },
-          "429": {
-            "description": "Más de 20 intentos por IP en 15 minutos"
-          },
-          "503": {
-            "description": "Registro no disponible"
+          "500": { "description": "Error interno" }
+        }
+      }
+    },
+    "/api/auth/registro/estudiante": {
+      "post": {
+        "summary": "Registrar estudiante usando una ruta específica",
+        "description": "El rol se asigna como ESTUDIANTE aunque el body incluya otro valor.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "nombres": "Ana",
+                "apellidos": "Peña",
+                "numero_identificacion": "1000000001",
+                "correo_usuario": "ana@example.com",
+                "contraseña_usuario": "ClaveSegura123!"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/registro/administrador": {
+      "post": {
+        "summary": "Registrar administrador usando una ruta específica"
+      }
+    },
+    "/api/auth/registro/donante": {
+      "post": {
+        "summary": "Registrar donante usando una ruta específica"
+      }
+    },
+    "/api/auth/registro/tallerista": {
+      "post": {
+        "summary": "Registrar tallerista usando una ruta específica"
+      }
+    },
+    "/api/auth/registro/acudiente": {
+      "post": {
+        "summary": "Registrar acudiente usando una ruta específica"
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Autenticar usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "correo_usuario": "ana@example.com",
+                "contraseña_usuario": "ClaveSegura123!"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/cambiar-contrasena": {
+      "patch": {
+        "summary": "Cambiar contraseña del usuario autenticado",
+        "parameters": [
+          { "name": "Authorization", "in": "header", "required": true, "schema": { "type": "string", "example": "Bearer <token>" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "contraseña_actual": "ClaveSegura123!",
+                "nueva_contraseña": "NuevaClave456!"
+              }
+            }
           }
         }
       }

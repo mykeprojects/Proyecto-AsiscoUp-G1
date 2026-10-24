@@ -1,37 +1,79 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["grupo_1"]
 }
 
-model Usuario {
-  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  correo   String   @unique
-  clave    String
-  creadoEn DateTime @default(now()) @map("creado_en") @db.Timestamptz(6)
-  perfil   Perfil?
-
-  @@map("usuarios")
-  @@schema("grupo_1")
+model estado {
+  id_estado      Int              @id @default(autoincrement())
+  descripcion    String
+  estado_usuario estado_usuario[]
 }
 
-model Perfil {
-  id                       String    @id @db.Uuid
-  nombres                  String    @default("")
-  apellidos                String?
-  celular                  String?
-  tipoDocumento            String?   @map("tipo_documento")
-  numeroDocumento          String?   @unique @map("numero_documento")
-  estado                   String    @default("activo")
-  aceptoTratamientoDatosEn  DateTime? @map("acepto_tratamiento_datos_en") @db.Timestamptz(6)
-  creadoEn                 DateTime  @default(now()) @map("creado_en") @db.Timestamptz(6)
-  actualizadoEn            DateTime  @default(now()) @map("actualizado_en") @db.Timestamptz(6)
-  usuario                  Usuario   @relation(fields: [id], references: [id], onDelete: Cascade)
+model rol {
+  id_rol       Int           @id @default(autoincrement())
+  nombre_rol   String        @unique
+  rol_usuario rol_usuario[]
+  permiso_rol permiso_rol[]
+}
 
-  @@map("perfiles")
-  @@schema("grupo_1")
+model permiso {
+  id_permiso   Int           @id @default(autoincrement())
+  descripcion  String
+  permiso_rol         permiso_rol[]
+}
+
+model usuario {
+  id_usuario                  Int              @id @default(autoincrement())
+  nombres                     String
+  apellidos                   String
+  tipo_documento              String?
+  numero_identificacion       String           @unique
+  telefono                    String?
+  direccion                   String?
+  fecha_nacimiento            DateTime?        @db.Date
+  correo_usuario              String           @unique
+  contraseña_usuario          String
+  acepta_terminos_condiciones Boolean          @default(false)
+  creado_en                   DateTime         @default(now()) @db.Timestamptz(6)
+  sesion                      sesion[]
+  estado_usuario              estado_usuario[]
+  rol_usuario                 rol_usuario[]
+}
+
+model sesion {
+  id_sesion         Int      @id @default(autoincrement())
+  id_usuario        Int
+  token_sesion      String
+  fecha_hora_sesion DateTime @default(now()) @db.Timestamptz(6)
+  usuario           usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model estado_usuario {
+  id_estado_usuario    Int      @id @default(autoincrement())
+  id_usuario           Int
+  id_estado            Int
+  fecha_estado_usuario DateTime @default(now()) @db.Timestamptz(6)
+  estado               estado   @relation(fields: [id_estado], references: [id_estado], onDelete: NoAction, onUpdate: NoAction)
+  usuario              usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model rol_usuario {
+  id_rol_usuario Int     @id @default(autoincrement())
+  id_usuario     Int
+  id_rol         Int
+  rol            rol     @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade, onUpdate: NoAction)
+  usuario        usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model permiso_rol {
+  id_permiso_rol Int     @id @default(autoincrement())
+  id_rol         Int
+  id_permiso     Int
+  permiso        permiso @relation(fields: [id_permiso], references: [id_permiso], onDelete: Cascade, onUpdate: NoAction)
+  rol            rol     @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade, onUpdate: NoAction)
 }
