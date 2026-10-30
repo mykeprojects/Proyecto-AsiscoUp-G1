@@ -1,8 +1,9 @@
 import "dotenv/config";
 import { app } from "./app.js";
+import { readConfig } from "./config.js";
 
-const PORT = Number(process.env["PORT"]) || 3000;
+const config = readConfig();
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+app.listen(config.port, config.host, () => {
+  console.log(`Servidor corriendo en http://${config.host}:${config.port}`);
 });

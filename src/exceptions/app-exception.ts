@@ -17,6 +17,12 @@ export class UnauthorizedException extends AppError {
   }
 }
 
+export class ForbiddenException extends AppError {
+  constructor(message: string = "Acceso denegado") {
+    super(message, 403);
+  }
+}
+
 export class NotFoundException extends AppError {
   constructor(message: string = "Recurso no encontrado") {
     super(message, 404);

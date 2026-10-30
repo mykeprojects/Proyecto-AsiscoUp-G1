@@ -1,0 +1,3147 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API AsiscoUp",
+    "version": "1.0.0",
+    "description": "API REST para la gestión de usuarios, roles, permisos y estados de AsiscoUp.\n\nLas operaciones CRUD administrativas requieren un usuario con rol ADMIN."
+  },
+  "servers": [
+    {
+      "url": "https://proyecto-asiscoup-g1.onrender.com",
+      "description": "Producción"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Desarrollo local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Sistema",
+      "description": "Disponibilidad del servicio."
+    },
+    {
+      "name": "Autenticación",
+      "description": "Registro, inicio de sesión y perfil."
+    },
+    {
+      "name": "Estados",
+      "description": "Estados del sistema."
+    },
+    {
+      "name": "Roles",
+      "description": "Roles de usuario."
+    },
+    {
+      "name": "Permisos",
+      "description": "Permisos disponibles."
+    },
+    {
+      "name": "Usuarios",
+      "description": "Gestión de usuarios."
+    },
+    {
+      "name": "Sesiones",
+      "description": "Sesiones asociadas a usuarios."
+    },
+    {
+      "name": "Estados de usuario",
+      "description": "Asignación de estados a usuarios."
+    },
+    {
+      "name": "Roles de usuario",
+      "description": "Asignación de roles a usuarios."
+    },
+    {
+      "name": "Permisos de rol",
+      "description": "Asignación de permisos a roles."
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Sistema"
+        ],
+        "summary": "Verifica que la aplicación está respondiendo",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Aplicación disponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/usuarios/con-rol": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Lista usuarios con sus roles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de usuarios con sus roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UsuarioConRoles"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/usuarios/con-rol/{id}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Consulta un usuario con sus roles por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario con sus roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioConRoles"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/usuarios": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Lista los usuarios sin exponer contraseñas",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de usuarios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Usuario"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Crea un usuario",
+        "description": "La contraseña se almacena cifrada y no se devuelve.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Consulta un usuario por ID sin exponer contraseña",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Actualiza un usuario por ID",
+        "description": "Si se envía una contraseña, se almacena cifrada.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Elimina un usuario por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Usuario eliminado"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/sesiones": {
+      "get": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Lista las sesiones",
+        "description": "Los tokens de sesión no se exponen en las respuestas.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de sesiones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Sesion"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Crea una sesión",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SesionNueva"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sesión creada, sin exponer el token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/sesiones/{id}": {
+      "get": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Consulta una sesión por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sesión encontrada, sin exponer el token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Actualiza una sesión por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SesionActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sesión actualizada, sin exponer el token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Elimina una sesión por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sesión eliminada"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/roles": {
+      "get": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Lista los roles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Rol"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Crea un rol",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rol creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/roles/{id}": {
+      "get": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Consulta un rol por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rol encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Actualiza un rol por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rol actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Elimina un rol por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rol eliminado"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/roles-usuario": {
+      "get": {
+        "tags": [
+          "Roles de usuario"
+        ],
+        "summary": "Lista las asignaciones de roles a usuarios",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de asignaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RolUsuario"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Roles de usuario"
+        ],
+        "summary": "Asigna un rol a un usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolUsuarioNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rol asignado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/roles-usuario/{id}": {
+      "get": {
+        "tags": [
+          "Roles de usuario"
+        ],
+        "summary": "Consulta una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asignación encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Roles de usuario"
+        ],
+        "summary": "Actualiza una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolUsuarioActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Asignación actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Roles de usuario"
+        ],
+        "summary": "Elimina una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Asignación eliminada"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/permisos": {
+      "get": {
+        "tags": [
+          "Permisos"
+        ],
+        "summary": "Lista los permisos",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de permisos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Permiso"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Permisos"
+        ],
+        "summary": "Crea un permiso",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermisoNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permiso creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permiso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/permisos/{id}": {
+      "get": {
+        "tags": [
+          "Permisos"
+        ],
+        "summary": "Consulta un permiso por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permiso encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permiso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Permisos"
+        ],
+        "summary": "Actualiza un permiso por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermisoActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Permiso actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permiso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Permisos"
+        ],
+        "summary": "Elimina un permiso por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Permiso eliminado"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/permisos-rol": {
+      "get": {
+        "tags": [
+          "Permisos de rol"
+        ],
+        "summary": "Lista las asignaciones de permisos a roles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de asignaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PermisoRol"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Permisos de rol"
+        ],
+        "summary": "Asigna un permiso a un rol",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermisoRolNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permiso asignado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisoRol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/permisos-rol/{id}": {
+      "get": {
+        "tags": [
+          "Permisos de rol"
+        ],
+        "summary": "Consulta una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asignación encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisoRol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Permisos de rol"
+        ],
+        "summary": "Actualiza una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermisoRolActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Asignación actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisoRol"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Permisos de rol"
+        ],
+        "summary": "Elimina una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Asignación eliminada"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/estados": {
+      "get": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Lista los estados",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de estados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Estado"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Crea un estado",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Estado creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estado"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/estados/{id}": {
+      "get": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Consulta un estado por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estado"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Actualiza un estado por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estado"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Estados"
+        ],
+        "summary": "Elimina un estado por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Estado eliminado"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/estados-usuario": {
+      "get": {
+        "tags": [
+          "Estados de usuario"
+        ],
+        "summary": "Lista las asignaciones de estado a usuarios",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de asignaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EstadoUsuario"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Estados de usuario"
+        ],
+        "summary": "Asigna un estado a un usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoUsuarioNuevo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Estado asignado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstadoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/estados-usuario/{id}": {
+      "get": {
+        "tags": [
+          "Estados de usuario"
+        ],
+        "summary": "Consulta una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asignación encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstadoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Estados de usuario"
+        ],
+        "summary": "Actualiza una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoUsuarioActualizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Asignación actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstadoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Estados de usuario"
+        ],
+        "summary": "Elimina una asignación por ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Asignación eliminada"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Inicia sesión con correo y contraseña",
+        "description": "Devuelve un JWT válido durante dos horas.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/auth/registro": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un usuario con un rol permitido",
+        "description": "No permite asignar el rol ADMIN desde esta ruta pública.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Registro"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "description": "El cuerpo de la solicitud supera 16 KB."
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/auth/registro/estudiante": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un estudiante",
+        "description": "El rol se asigna como ESTUDIANTE; no se toma del body.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroPorRol"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Estudiante registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/registro/administrador": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un administrador",
+        "description": "Requiere un JWT de un usuario que ya tenga el rol ADMIN.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroPorRol"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Administrador registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/registro/donante": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un donante",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroPorRol"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Donante registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/registro/tallerista": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un tallerista",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroPorRol"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tallerista registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/registro/acudiente": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Registra un acudiente",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroPorRol"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Acudiente registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/perfil": {
+      "get": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Consulta el perfil del usuario autenticado",
+        "responses": {
+          "200": {
+            "description": "Perfil con los roles del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioPerfil"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/auth/cambiar-contrasena": {
+      "patch": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Cambia la contraseña del usuario autenticado",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambiarContrasena"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensaje"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Pega únicamente el token obtenido en el inicio de sesión."
+      }
+    },
+    "parameters": {
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Identificador numérico positivo del recurso.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 1
+        }
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "description": "Número de página, comienza en 1.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "example": 1
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Cantidad de elementos por página (máximo 100).",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "example": 20
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Recurso no encontrado"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": [
+          "page",
+          "limit"
+        ],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "RegistroBase": {
+        "type": "object",
+        "required": [
+          "nombres",
+          "apellidos",
+          "numero_identificacion",
+          "correo_usuario",
+          "contraseña_usuario"
+        ],
+        "properties": {
+          "nombres": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Ana"
+          },
+          "apellidos": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Pérez"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "nullable": true,
+            "example": "CC"
+          },
+          "numero_identificacion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "1000000001"
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true,
+            "example": "3001234567"
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true,
+            "example": "Calle 10"
+          },
+          "fecha_nacimiento": {
+            "type": "string",
+            "format": "date",
+            "example": "2000-01-15"
+          },
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          },
+          "contraseña_usuario": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "writeOnly": true,
+            "example": "ClaveSegura123!"
+          },
+          "acepta_terminos_condiciones": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Registro": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RegistroBase"
+          },
+          {
+            "type": "object",
+            "required": [
+              "rol"
+            ],
+            "properties": {
+              "rol": {
+                "type": "string",
+                "enum": [
+                  "ESTUDIANTE",
+                  "ADMIN",
+                  "DONANTE",
+                  "TALLERISTA",
+                  "ACUDIENTE"
+                ],
+                "example": "ESTUDIANTE"
+              }
+            }
+          }
+        ]
+      },
+      "RegistroPorRol": {
+        "$ref": "#/components/schemas/RegistroBase"
+      },
+      "Login": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "correo_usuario",
+          "contraseña_usuario"
+        ],
+        "properties": {
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          },
+          "contraseña_usuario": {
+            "type": "string",
+            "format": "password",
+            "writeOnly": true,
+            "example": "ClaveSegura123!"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "token",
+          "usuario"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT válido durante dos horas.",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "usuario": {
+            "type": "object",
+            "required": [
+              "id_usuario",
+              "correo_usuario",
+              "roles"
+            ],
+            "properties": {
+              "id_usuario": {
+                "type": "integer",
+                "example": 1
+              },
+              "correo_usuario": {
+                "type": "string",
+                "format": "email",
+                "example": "ana@example.com"
+              },
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "ESTUDIANTE"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "RegistroResponse": {
+        "type": "object",
+        "required": [
+          "id_usuario",
+          "correo_usuario",
+          "nombres",
+          "apellidos",
+          "numero_identificacion",
+          "rol",
+          "creado_en"
+        ],
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          },
+          "nombres": {
+            "type": "string",
+            "example": "Ana"
+          },
+          "apellidos": {
+            "type": "string",
+            "example": "Pérez"
+          },
+          "numero_identificacion": {
+            "type": "string",
+            "example": "1000000001"
+          },
+          "rol": {
+            "type": "string",
+            "example": "ESTUDIANTE"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00.000Z"
+          }
+        }
+      },
+      "Mensaje": {
+        "type": "object",
+        "required": [
+          "mensaje"
+        ],
+        "properties": {
+          "mensaje": {
+            "type": "string",
+            "example": "Contraseña actualizada exitosamente"
+          }
+        }
+      },
+      "CambiarContrasena": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contraseña_actual",
+          "nueva_contraseña"
+        ],
+        "properties": {
+          "contraseña_actual": {
+            "type": "string",
+            "format": "password",
+            "writeOnly": true,
+            "example": "ClaveActual123!"
+          },
+          "nueva_contraseña": {
+            "type": "string",
+            "format": "password",
+            "writeOnly": true,
+            "example": "NuevaClave456!"
+          }
+        }
+      },
+      "UsuarioResumen": {
+        "type": "object",
+        "required": [
+          "id_usuario",
+          "nombres",
+          "apellidos",
+          "correo_usuario"
+        ],
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombres": {
+            "type": "string",
+            "example": "Ana"
+          },
+          "apellidos": {
+            "type": "string",
+            "example": "Pérez"
+          },
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          }
+        }
+      },
+      "Estado": {
+        "type": "object",
+        "required": [
+          "id_estado",
+          "descripcion"
+        ],
+        "properties": {
+          "id_estado": {
+            "type": "integer",
+            "example": 1
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Activo"
+          },
+          "usuarios": {
+            "type": "array",
+            "description": "Usuarios asociados; se incluye al consultar un estado por ID.",
+            "items": {
+              "$ref": "#/components/schemas/UsuarioResumen"
+            }
+          }
+        }
+      },
+      "EstadoNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "descripcion"
+        ],
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Activo"
+          }
+        }
+      },
+      "EstadoActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Inactivo"
+          }
+        }
+      },
+      "Rol": {
+        "type": "object",
+        "required": [
+          "id_rol",
+          "nombre_rol"
+        ],
+        "properties": {
+          "id_rol": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre_rol": {
+            "type": "string",
+            "example": "ESTUDIANTE"
+          },
+          "usuarios": {
+            "type": "array",
+            "description": "Usuarios asociados; se incluye al consultar un rol por ID.",
+            "items": {
+              "$ref": "#/components/schemas/UsuarioResumen"
+            }
+          },
+          "permisos": {
+            "type": "array",
+            "description": "Permisos asociados; se incluye al consultar un rol por ID.",
+            "items": {
+              "$ref": "#/components/schemas/Permiso"
+            }
+          }
+        }
+      },
+      "RolNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nombre_rol"
+        ],
+        "properties": {
+          "nombre_rol": {
+            "type": "string",
+            "minLength": 1,
+            "example": "ESTUDIANTE"
+          }
+        }
+      },
+      "RolActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "nombre_rol": {
+            "type": "string",
+            "minLength": 1,
+            "example": "TALLERISTA"
+          }
+        }
+      },
+      "Permiso": {
+        "type": "object",
+        "required": [
+          "id_permiso",
+          "descripcion"
+        ],
+        "properties": {
+          "id_permiso": {
+            "type": "integer",
+            "example": 1
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Administrar usuarios"
+          },
+          "roles": {
+            "type": "array",
+            "description": "Roles asociados; se incluye al consultar un permiso por ID.",
+            "items": {
+              "$ref": "#/components/schemas/Rol"
+            }
+          }
+        }
+      },
+      "PermisoNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "descripcion"
+        ],
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Administrar usuarios"
+          }
+        }
+      },
+      "PermisoActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Consultar usuarios"
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombres": {
+            "type": "string",
+            "example": "Ana"
+          },
+          "apellidos": {
+            "type": "string",
+            "example": "Pérez"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "nullable": true,
+            "example": "CC"
+          },
+          "numero_identificacion": {
+            "type": "string",
+            "example": "1000000001"
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true,
+            "example": "3001234567"
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true,
+            "example": "Calle 10"
+          },
+          "fecha_nacimiento": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2000-01-15"
+          },
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          },
+          "acepta_terminos_condiciones": {
+            "type": "boolean",
+            "example": true
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00.000Z"
+          }
+        }
+      },
+      "UsuarioNuevo": {
+        "$ref": "#/components/schemas/RegistroBase"
+      },
+      "UsuarioActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "nombres": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Ana"
+          },
+          "apellidos": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Pérez"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "nullable": true,
+            "example": "CC"
+          },
+          "numero_identificacion": {
+            "type": "string",
+            "minLength": 1,
+            "example": "1000000001"
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true,
+            "example": "3001234567"
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true,
+            "example": "Calle 10"
+          },
+          "fecha_nacimiento": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2000-01-15"
+          },
+          "correo_usuario": {
+            "type": "string",
+            "format": "email",
+            "example": "ana@example.com"
+          },
+          "contraseña_usuario": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "writeOnly": true
+          },
+          "acepta_terminos_condiciones": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "UsuarioConRoles": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Rol"
+                },
+                "example": [
+                  {
+                    "id_rol": 1,
+                    "nombre_rol": "ESTUDIANTE"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "UsuarioPerfil": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Rol"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Sesion": {
+        "type": "object",
+        "properties": {
+          "id_sesion": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "fecha_hora_sesion": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00.000Z"
+          },
+          "usuario": {
+            "type": "object",
+            "properties": {
+              "nombres": {
+                "type": "string",
+                "example": "Ana"
+              },
+              "apellidos": {
+                "type": "string",
+                "example": "Pérez"
+              },
+              "correo_usuario": {
+                "type": "string",
+                "format": "email",
+                "example": "ana@example.com"
+              }
+            }
+          }
+        },
+        "description": "El token de sesión no se devuelve en las respuestas."
+      },
+      "SesionNueva": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id_usuario",
+          "token_sesion"
+        ],
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "token_sesion": {
+            "type": "string",
+            "minLength": 1,
+            "writeOnly": true
+          },
+          "fecha_hora_sesion": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SesionActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "token_sesion": {
+            "type": "string",
+            "minLength": 1,
+            "writeOnly": true
+          },
+          "fecha_hora_sesion": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EstadoUsuario": {
+        "type": "object",
+        "required": [
+          "id_estado_usuario",
+          "id_usuario",
+          "id_estado"
+        ],
+        "properties": {
+          "id_estado_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_estado": {
+            "type": "integer",
+            "example": 1
+          },
+          "fecha_estado_usuario": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-30T12:00:00.000Z"
+          }
+        }
+      },
+      "EstadoUsuarioNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id_usuario",
+          "id_estado"
+        ],
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_estado": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "fecha_estado_usuario": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EstadoUsuarioActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_estado": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "fecha_estado_usuario": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RolUsuario": {
+        "type": "object",
+        "required": [
+          "id_rol_usuario",
+          "id_usuario",
+          "id_rol"
+        ],
+        "properties": {
+          "id_rol_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_usuario": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_rol": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "RolUsuarioNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id_usuario",
+          "id_rol"
+        ],
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_rol": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "RolUsuarioActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "id_usuario": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_rol": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "PermisoRol": {
+        "type": "object",
+        "required": [
+          "id_permiso_rol",
+          "id_rol",
+          "id_permiso"
+        ],
+        "properties": {
+          "id_permiso_rol": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_rol": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_permiso": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "PermisoRolNuevo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id_rol",
+          "id_permiso"
+        ],
+        "properties": {
+          "id_rol": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_permiso": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "PermisoRolActualizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "id_rol": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "id_permiso": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Datos o parámetros inválidos.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Datos inválidos"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Falta el token o es inválido/expiró.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Token inválido o expirado"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "El usuario no tiene permisos para esta operación.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Se requiere el rol ADMIN"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "El recurso no existe.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Recurso no encontrado"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Ya existe un registro con esos datos únicos.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Ya existe un registro con esos datos únicos"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Error interno del servidor.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Error interno del servidor"
+            }
+          }
+        }
+      }
+    }
+  }
+}

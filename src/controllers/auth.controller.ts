@@ -2,8 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { AuthService } from "../services/auth.service.js";
 import { UnauthorizedException } from "../exceptions/app-exception.js";
-
-const JWT_SECRET = process.env["JWT_SECRET"] ?? "secreto_por_defecto";
+import { getJwtSecret } from "../config/jwt.js";
 
 export class AuthController {
   private authService: AuthService;
@@ -14,9 +13,11 @@ export class AuthController {
 
   private obtenerIdUsuarioToken(req: Request): number {
     const token = req.headers.authorization?.replace("Bearer ", "") ?? "";
+    const secret = getJwtSecret();
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { id_usuario: number };
-      if (!Number.isInteger(decoded.id_usuario)) throw new Error("ID inválido");
+      const decoded = jwt.verify(token, secret);
+      if (typeof decoded === "string" || typeof decoded["id_usuario"] !== "number" ||
+          !Number.isInteger(decoded["id_usuario"])) throw new Error("ID inválido");
       return decoded.id_usuario;
     } catch {
       throw new UnauthorizedException("Token inválido o expirado");
@@ -43,7 +44,7 @@ export class AuthController {
 
   registroPorRol = (rol: string) => async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const usuario = await this.authService.registrar({ ...req.body, rol });
+      const usuario = await this.authService.registrar({ ...req.body, rol }, rol === "ADMIN");
       res.status(201).json(usuario);
     } catch (error) {
       next(error);

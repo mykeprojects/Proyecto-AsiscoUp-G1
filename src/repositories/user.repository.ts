@@ -20,7 +20,7 @@ export class UserRepository {
   }
 
   async buscarPorId(id_usuario: number) {
-    return await prisma.usuario.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id_usuario },
       select: {
         id_usuario: true,
@@ -35,10 +35,14 @@ export class UserRepository {
         acepta_terminos_condiciones: true,
         creado_en: true,
         rol_usuario: {
-          select: { rol: { select: { nombre_rol: true } } },
+          select: { rol: { select: { id_rol: true, nombre_rol: true } } },
         },
       },
     });
+    if (!usuario) return null;
+
+    const { rol_usuario, ...datosUsuario } = usuario;
+    return { ...datosUsuario, roles: rol_usuario.map(({ rol }) => rol) };
   }
 
   async crearConRol(dto: RegistroDTO, claveCifrada: string) {

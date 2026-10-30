@@ -2,12 +2,35 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { once } from "node:events";
 import bcrypt from "bcryptjs";
-import { readConfig } from "../src/config.js";
+import { readConfig, readPublicUrl } from "../src/config.js";
+import { getSwaggerServers } from "../src/docs/swagger.js";
 
 test("configuración rechaza URL y puerto inválidos", () => {
   assert.throws(() => readConfig({}));
   assert.throws(() => readConfig({ DATABASE_URL: "https://example.com/db" }));
   assert.throws(() => readConfig({ DATABASE_URL: "postgresql://test@localhost/test", PORT: "0" }));
+});
+
+test("PUBLIC_URL configura el servidor OpenAPI y usa localhost por defecto", () => {
+  assert.equal(
+    readPublicUrl({ PUBLIC_URL: "https://api.example.com/" }),
+    "https://api.example.com",
+  );
+  assert.equal(readPublicUrl({ PORT: "3001" }), "http://localhost:3001");
+  assert.throws(() => readPublicUrl({ PUBLIC_URL: "ftp://api.example.com" }), /PUBLIC_URL/);
+  assert.throws(() => readPublicUrl({ NODE_ENV: "production" }), /obligatorio/);
+  assert.throws(() => readPublicUrl({
+    NODE_ENV: "production",
+    PUBLIC_URL: "http://api.example.com",
+  }), /HTTPS/);
+  assert.deepEqual(
+    getSwaggerServers({
+      NODE_ENV: "production",
+      PUBLIC_URL: "https://api.example.com/",
+      PORT: "3001",
+    }),
+    [{ url: "https://api.example.com", description: "Producción" }],
+  );
 });
 
 test("registro HTTP con PostgreSQL aislado", { skip: !process.env["TEST_DATABASE_URL"] }, async () => {

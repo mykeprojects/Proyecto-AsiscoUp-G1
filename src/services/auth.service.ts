@@ -1,10 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { BadRequestException, ConflictException, NotFoundException, UnauthorizedException } from "../exceptions/app-exception.js";
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException, UnauthorizedException } from "../exceptions/app-exception.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import type { CambiarContrasenaDTO, LoginDTO, RegistroDTO, UsuarioRespuesta } from "../types/auth.types.js";
-
-const JWT_SECRET = process.env["JWT_SECRET"] ?? "secreto_por_defecto";
+import { getJwtSecret } from "../config/jwt.js";
 
 export class AuthService {
   private userRepository: UserRepository;
@@ -13,7 +12,7 @@ export class AuthService {
     this.userRepository = new UserRepository();
   }
 
-  async registrar(dto: RegistroDTO): Promise<UsuarioRespuesta> {
+  async registrar(dto: RegistroDTO, permitirAdministrador = false): Promise<UsuarioRespuesta> {
     if (!dto.nombres?.trim() || !dto.apellidos?.trim() || !dto.numero_identificacion?.trim() ||
         !dto.correo_usuario?.trim() || !dto.contraseña_usuario || !dto.rol?.trim()) {
       throw new BadRequestException("nombres, apellidos, numero_identificacion, correo_usuario, contraseña_usuario y rol son obligatorios");
@@ -29,6 +28,9 @@ export class AuthService {
     dto.numero_identificacion = dto.numero_identificacion.trim();
     dto.correo_usuario = dto.correo_usuario.trim().toLowerCase();
     dto.rol = dto.rol.trim();
+    if (!permitirAdministrador && dto.rol.toUpperCase() === "ADMIN") {
+      throw new ForbiddenException("El rol ADMIN solo puede asignarlo un administrador");
+    }
 
     const usuarioExistente = await this.userRepository.buscarPorCorreo(dto.correo_usuario);
     if (usuarioExistente) {
@@ -58,7 +60,7 @@ export class AuthService {
       throw new UnauthorizedException("Correo o contraseña incorrectos");
     }
 
-    const token = jwt.sign({ id_usuario: usuario.id_usuario }, JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign({ id_usuario: usuario.id_usuario }, getJwtSecret(), { expiresIn: "2h" });
 
     return {
       token,

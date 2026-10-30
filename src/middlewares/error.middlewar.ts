@@ -24,6 +24,22 @@ export const errorHandler = (
     return;
   }
 
+  if (typeof err === "object" && err !== null && "code" in err) {
+    const code = err.code;
+    if (code === "P2002") {
+      res.status(409).json({ error: "Ya existe un registro con esos datos únicos" });
+      return;
+    }
+    if (code === "P2025") {
+      res.status(404).json({ error: "Recurso no encontrado" });
+      return;
+    }
+    if (code === "P2003") {
+      res.status(400).json({ error: "La referencia indicada no existe o no puede modificarse" });
+      return;
+    }
+  }
+
   // 3. Fallos no controlados del sistema (500)
   console.error("Internal Error:", err);
   res.status(500).json({ error: "Error interno del servidor" });

@@ -1,0 +1,678 @@
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Pega únicamente el token obtenido en el inicio de sesión.
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Identificador numérico positivo del recurso.
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    Page:
+      name: page
+      in: query
+      description: Número de página, comienza en 1.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+    Limit:
+      name: limit
+      in: query
+      description: Cantidad de elementos por página (máximo 100).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: Recurso no encontrado
+    Pagination:
+      type: object
+      required: [page, limit]
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          example: ok
+    RegistroBase:
+      type: object
+      required:
+        - nombres
+        - apellidos
+        - numero_identificacion
+        - correo_usuario
+        - contraseña_usuario
+      properties:
+        nombres:
+          type: string
+          minLength: 1
+          example: Ana
+        apellidos:
+          type: string
+          minLength: 1
+          example: Pérez
+        tipo_documento:
+          type: string
+          nullable: true
+          example: CC
+        numero_identificacion:
+          type: string
+          minLength: 1
+          example: "1000000001"
+        telefono:
+          type: string
+          nullable: true
+          example: "3001234567"
+        direccion:
+          type: string
+          nullable: true
+          example: Calle 10 # 20-30
+        fecha_nacimiento:
+          type: string
+          format: date
+          example: "2000-01-15"
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+        contraseña_usuario:
+          type: string
+          format: password
+          minLength: 8
+          writeOnly: true
+          example: ClaveSegura123!
+        acepta_terminos_condiciones:
+          type: boolean
+          example: true
+    Registro:
+      allOf:
+        - $ref: "#/components/schemas/RegistroBase"
+        - type: object
+          required: [rol]
+          properties:
+            rol:
+              type: string
+              enum: [ESTUDIANTE, ADMIN, DONANTE, TALLERISTA, ACUDIENTE]
+              example: ESTUDIANTE
+    RegistroPorRol:
+      $ref: "#/components/schemas/RegistroBase"
+    Login:
+      type: object
+      additionalProperties: false
+      required: [correo_usuario, contraseña_usuario]
+      properties:
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+        contraseña_usuario:
+          type: string
+          format: password
+          writeOnly: true
+          example: ClaveSegura123!
+    LoginResponse:
+      type: object
+      required: [token, usuario]
+      properties:
+        token:
+          type: string
+          description: JWT válido durante dos horas.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        usuario:
+          type: object
+          required: [id_usuario, correo_usuario, roles]
+          properties:
+            id_usuario:
+              type: integer
+              example: 1
+            correo_usuario:
+              type: string
+              format: email
+              example: ana@example.com
+            roles:
+              type: array
+              items:
+                type: string
+              example: [ESTUDIANTE]
+    RegistroResponse:
+      type: object
+      required: [id_usuario, correo_usuario, nombres, apellidos, numero_identificacion, rol, creado_en]
+      properties:
+        id_usuario:
+          type: integer
+          example: 1
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+        nombres:
+          type: string
+          example: Ana
+        apellidos:
+          type: string
+          example: Pérez
+        numero_identificacion:
+          type: string
+          example: "1000000001"
+        rol:
+          type: string
+          example: ESTUDIANTE
+        creado_en:
+          type: string
+          format: date-time
+          example: "2026-10-30T12:00:00.000Z"
+    Mensaje:
+      type: object
+      required: [mensaje]
+      properties:
+        mensaje:
+          type: string
+          example: Contraseña actualizada exitosamente
+    CambiarContrasena:
+      type: object
+      additionalProperties: false
+      required: [contraseña_actual, nueva_contraseña]
+      properties:
+        contraseña_actual:
+          type: string
+          format: password
+          writeOnly: true
+          example: ClaveActual123!
+        nueva_contraseña:
+          type: string
+          format: password
+          writeOnly: true
+          example: NuevaClave456!
+    UsuarioResumen:
+      type: object
+      required: [id_usuario, nombres, apellidos, correo_usuario]
+      properties:
+        id_usuario:
+          type: integer
+          example: 1
+        nombres:
+          type: string
+          example: Ana
+        apellidos:
+          type: string
+          example: Pérez
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+    Estado:
+      type: object
+      required: [id_estado, descripcion]
+      properties:
+        id_estado:
+          type: integer
+          example: 1
+        descripcion:
+          type: string
+          example: Activo
+        usuarios:
+          type: array
+          description: Usuarios asociados; se incluye al consultar un estado por ID.
+          items:
+            $ref: "#/components/schemas/UsuarioResumen"
+    EstadoNuevo:
+      type: object
+      additionalProperties: false
+      required: [descripcion]
+      properties:
+        descripcion:
+          type: string
+          minLength: 1
+          example: Activo
+    EstadoActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        descripcion:
+          type: string
+          minLength: 1
+          example: Inactivo
+    Rol:
+      type: object
+      required: [id_rol, nombre_rol]
+      properties:
+        id_rol:
+          type: integer
+          example: 1
+        nombre_rol:
+          type: string
+          example: ESTUDIANTE
+        usuarios:
+          type: array
+          description: Usuarios asociados; se incluye al consultar un rol por ID.
+          items:
+            $ref: "#/components/schemas/UsuarioResumen"
+        permisos:
+          type: array
+          description: Permisos asociados; se incluye al consultar un rol por ID.
+          items:
+            $ref: "#/components/schemas/Permiso"
+    RolNuevo:
+      type: object
+      additionalProperties: false
+      required: [nombre_rol]
+      properties:
+        nombre_rol:
+          type: string
+          minLength: 1
+          example: ESTUDIANTE
+    RolActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        nombre_rol:
+          type: string
+          minLength: 1
+          example: TALLERISTA
+    Permiso:
+      type: object
+      required: [id_permiso, descripcion]
+      properties:
+        id_permiso:
+          type: integer
+          example: 1
+        descripcion:
+          type: string
+          example: Administrar usuarios
+        roles:
+          type: array
+          description: Roles asociados; se incluye al consultar un permiso por ID.
+          items:
+            $ref: "#/components/schemas/Rol"
+    PermisoNuevo:
+      type: object
+      additionalProperties: false
+      required: [descripcion]
+      properties:
+        descripcion:
+          type: string
+          minLength: 1
+          example: Administrar usuarios
+    PermisoActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        descripcion:
+          type: string
+          minLength: 1
+          example: Consultar usuarios
+    Usuario:
+      type: object
+      properties:
+        id_usuario:
+          type: integer
+          example: 1
+        nombres:
+          type: string
+          example: Ana
+        apellidos:
+          type: string
+          example: Pérez
+        tipo_documento:
+          type: string
+          nullable: true
+          example: CC
+        numero_identificacion:
+          type: string
+          example: "1000000001"
+        telefono:
+          type: string
+          nullable: true
+          example: "3001234567"
+        direccion:
+          type: string
+          nullable: true
+          example: Calle 10 # 20-30
+        fecha_nacimiento:
+          type: string
+          format: date
+          nullable: true
+          example: "2000-01-15"
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+        acepta_terminos_condiciones:
+          type: boolean
+          example: true
+        creado_en:
+          type: string
+          format: date-time
+          example: "2026-10-30T12:00:00.000Z"
+    UsuarioNuevo:
+      $ref: "#/components/schemas/RegistroBase"
+    UsuarioActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        nombres:
+          type: string
+          minLength: 1
+          example: Ana
+        apellidos:
+          type: string
+          minLength: 1
+          example: Pérez
+        tipo_documento:
+          type: string
+          nullable: true
+          example: CC
+        numero_identificacion:
+          type: string
+          minLength: 1
+          example: "1000000001"
+        telefono:
+          type: string
+          nullable: true
+          example: "3001234567"
+        direccion:
+          type: string
+          nullable: true
+          example: Calle 10 # 20-30
+        fecha_nacimiento:
+          type: string
+          format: date
+          nullable: true
+          example: "2000-01-15"
+        correo_usuario:
+          type: string
+          format: email
+          example: ana@example.com
+        contraseña_usuario:
+          type: string
+          format: password
+          minLength: 8
+          writeOnly: true
+        acepta_terminos_condiciones:
+          type: boolean
+          example: true
+    UsuarioConRoles:
+      allOf:
+        - $ref: "#/components/schemas/Usuario"
+        - type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: "#/components/schemas/Rol"
+              example:
+                - id_rol: 1
+                  nombre_rol: ESTUDIANTE
+    UsuarioPerfil:
+      allOf:
+        - $ref: "#/components/schemas/Usuario"
+        - type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: "#/components/schemas/Rol"
+    Sesion:
+      type: object
+      properties:
+        id_sesion:
+          type: integer
+          example: 1
+        id_usuario:
+          type: integer
+          example: 1
+        fecha_hora_sesion:
+          type: string
+          format: date-time
+          example: "2026-10-30T12:00:00.000Z"
+        usuario:
+          type: object
+          properties:
+            nombres:
+              type: string
+              example: Ana
+            apellidos:
+              type: string
+              example: Pérez
+            correo_usuario:
+              type: string
+              format: email
+              example: ana@example.com
+      description: El token de sesión no se devuelve en las respuestas.
+    SesionNueva:
+      type: object
+      additionalProperties: false
+      required: [id_usuario, token_sesion]
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        token_sesion:
+          type: string
+          minLength: 1
+          writeOnly: true
+        fecha_hora_sesion:
+          type: string
+          format: date-time
+    SesionActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        token_sesion:
+          type: string
+          minLength: 1
+          writeOnly: true
+        fecha_hora_sesion:
+          type: string
+          format: date-time
+    EstadoUsuario:
+      type: object
+      required: [id_estado_usuario, id_usuario, id_estado]
+      properties:
+        id_estado_usuario:
+          type: integer
+          example: 1
+        id_usuario:
+          type: integer
+          example: 1
+        id_estado:
+          type: integer
+          example: 1
+        fecha_estado_usuario:
+          type: string
+          format: date-time
+          example: "2026-10-30T12:00:00.000Z"
+    EstadoUsuarioNuevo:
+      type: object
+      additionalProperties: false
+      required: [id_usuario, id_estado]
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        id_estado:
+          type: integer
+          minimum: 1
+          example: 1
+        fecha_estado_usuario:
+          type: string
+          format: date-time
+    EstadoUsuarioActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        id_estado:
+          type: integer
+          minimum: 1
+          example: 1
+        fecha_estado_usuario:
+          type: string
+          format: date-time
+    RolUsuario:
+      type: object
+      required: [id_rol_usuario, id_usuario, id_rol]
+      properties:
+        id_rol_usuario:
+          type: integer
+          example: 1
+        id_usuario:
+          type: integer
+          example: 1
+        id_rol:
+          type: integer
+          example: 1
+    RolUsuarioNuevo:
+      type: object
+      additionalProperties: false
+      required: [id_usuario, id_rol]
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        id_rol:
+          type: integer
+          minimum: 1
+          example: 1
+    RolUsuarioActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        id_usuario:
+          type: integer
+          minimum: 1
+          example: 1
+        id_rol:
+          type: integer
+          minimum: 1
+          example: 1
+    PermisoRol:
+      type: object
+      required: [id_permiso_rol, id_rol, id_permiso]
+      properties:
+        id_permiso_rol:
+          type: integer
+          example: 1
+        id_rol:
+          type: integer
+          example: 1
+        id_permiso:
+          type: integer
+          example: 1
+    PermisoRolNuevo:
+      type: object
+      additionalProperties: false
+      required: [id_rol, id_permiso]
+      properties:
+        id_rol:
+          type: integer
+          minimum: 1
+          example: 1
+        id_permiso:
+          type: integer
+          minimum: 1
+          example: 1
+    PermisoRolActualizacion:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        id_rol:
+          type: integer
+          minimum: 1
+          example: 1
+        id_permiso:
+          type: integer
+          minimum: 1
+          example: 1
+  responses:
+    BadRequest:
+      description: Datos o parámetros inválidos.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Datos inválidos
+    Unauthorized:
+      description: Falta el token o es inválido/expiró.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Token inválido o expirado
+    Forbidden:
+      description: El usuario no tiene permisos para esta operación.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Se requiere el rol ADMIN
+    NotFound:
+      description: El recurso no existe.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Recurso no encontrado
+    Conflict:
+      description: Ya existe un registro con esos datos únicos.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Ya existe un registro con esos datos únicos
+    InternalError:
+      description: Error interno del servidor.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Error interno del servidor

@@ -1,0 +1,520 @@
+{
+  "info": {
+    "_postman_id": "2f6d69d8-68d9-4c63-b17c-9f4dc90f7a16",
+    "name": "AsiscoUp - Pruebas API",
+    "description": "Colección de solicitudes de prueba para todos los endpoints. Configure baseUrl, adminEmail y adminPassword. Ejecute en orden para que las solicitudes de creación guarden IDs que usarán las demás. Las consultas de escritura y eliminación modifican datos reales.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('La respuesta HTTP es exitosa (2xx)', function () {",
+          "  pm.expect(pm.response.code).to.be.within(200, 299);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminEmail", "value": "admin@example.com" },
+    { "key": "adminPassword", "value": "CambiarPassword123!" },
+    { "key": "token", "value": "" },
+    { "key": "usuarioId", "value": "" },
+    { "key": "estadoId", "value": "" },
+    { "key": "rolId", "value": "" },
+    { "key": "permisoId", "value": "" },
+    { "key": "sesionId", "value": "" },
+    { "key": "estadoUsuarioId", "value": "" },
+    { "key": "rolUsuarioId", "value": "" },
+    { "key": "permisoRolId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Iniciar sesión",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo_usuario\": \"{{adminEmail}}\",\n  \"contraseña_usuario\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  pm.collectionVariables.set('token', pm.response.json().token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar usuario con rol indicado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"General {{$timestamp}}\",\n  \"numero_identificacion\": \"PG{{$timestamp}}\",\n  \"correo_usuario\": \"postman.general.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\",\n  \"rol\": \"ESTUDIANTE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Registrar estudiante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Estudiante {{$timestamp}}\",\n  \"numero_identificacion\": \"PE{{$timestamp}}\",\n  \"correo_usuario\": \"postman.estudiante.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro/estudiante",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Registrar administrador",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Administrador {{$timestamp}}\",\n  \"numero_identificacion\": \"PA{{$timestamp}}\",\n  \"correo_usuario\": \"postman.admin.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro/administrador"
+          }
+        },
+        {
+          "name": "Registrar donante",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Donante {{$timestamp}}\",\n  \"numero_identificacion\": \"PD{{$timestamp}}\",\n  \"correo_usuario\": \"postman.donante.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro/donante",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Registrar tallerista",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Tallerista {{$timestamp}}\",\n  \"numero_identificacion\": \"PT{{$timestamp}}\",\n  \"correo_usuario\": \"postman.tallerista.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro/tallerista",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Registrar acudiente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Acudiente {{$timestamp}}\",\n  \"numero_identificacion\": \"PAU{{$timestamp}}\",\n  \"correo_usuario\": \"postman.acudiente.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/registro/acudiente",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Consultar perfil autenticado",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/perfil" }
+        },
+        {
+          "name": "Cambiar contraseña (misma contraseña para no alterar credenciales)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contraseña_actual\": \"{{adminPassword}}\",\n  \"nueva_contraseña\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/cambiar-contrasena"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estados",
+      "item": [
+        {
+          "name": "Listar estados",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/estados?page=1&limit=20" }
+        },
+        {
+          "name": "Crear estado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Postman estado {{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/estados"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('estadoId', String(pm.response.json().id_estado));"] } }]
+        },
+        {
+          "name": "Consultar estado por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/estados/{{estadoId}}" }
+        },
+        {
+          "name": "Actualizar estado",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Postman estado actualizado {{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/estados/{{estadoId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Listar roles",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/roles?page=1&limit=20" }
+        },
+        {
+          "name": "Crear rol",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_rol\": \"POSTMAN_{{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/roles"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('rolId', String(pm.response.json().id_rol));"] } }]
+        },
+        {
+          "name": "Consultar rol y relaciones limpias por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/roles/{{rolId}}" }
+        },
+        {
+          "name": "Actualizar rol",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_rol\": \"POSTMAN_ACTUALIZADO_{{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/roles/{{rolId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permisos",
+      "item": [
+        {
+          "name": "Listar permisos",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/permisos?page=1&limit=20" }
+        },
+        {
+          "name": "Crear permiso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Postman permiso {{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/permisos"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('permisoId', String(pm.response.json().id_permiso));"] } }]
+        },
+        {
+          "name": "Consultar permiso y roles limpios por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/permisos/{{permisoId}}" }
+        },
+        {
+          "name": "Actualizar permiso",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Postman permiso actualizado {{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/permisos/{{permisoId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios puros",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios?page=1&limit=20" }
+        },
+        {
+          "name": "Crear usuario puro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Usuario\",\n  \"apellidos\": \"Postman {{$timestamp}}\",\n  \"numero_identificacion\": \"UP{{$timestamp}}\",\n  \"correo_usuario\": \"postman.usuario.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('usuarioId', String(pm.response.json().id_usuario));"] } }]
+        },
+        {
+          "name": "Consultar usuario puro por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/{{usuarioId}}" }
+        },
+        {
+          "name": "Actualizar usuario puro",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Usuario actualizado\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioId}}"
+          }
+        },
+        {
+          "name": "Listar usuarios con roles",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/con-rol?page=1&limit=20" }
+        },
+        {
+          "name": "Consultar usuario con roles por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/con-rol/{{usuarioId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Sesiones",
+      "item": [
+        {
+          "name": "Listar sesiones",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/sesiones?page=1&limit=20" }
+        },
+        {
+          "name": "Crear sesión",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": {{usuarioId}},\n  \"token_sesion\": \"postman-session-{{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/sesiones"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('sesionId', String(pm.response.json().id_sesion));"] } }]
+        },
+        {
+          "name": "Consultar sesión por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/sesiones/{{sesionId}}" }
+        },
+        {
+          "name": "Actualizar sesión",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_sesion\": \"postman-session-updated-{{$timestamp}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/sesiones/{{sesionId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estados de usuario",
+      "item": [
+        {
+          "name": "Listar estados de usuario",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/estados-usuario?page=1&limit=20" }
+        },
+        {
+          "name": "Crear asignación de estado",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": {{usuarioId}},\n  \"id_estado\": {{estadoId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/estados-usuario"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('estadoUsuarioId', String(pm.response.json().id_estado_usuario));"] } }]
+        },
+        {
+          "name": "Consultar asignación de estado por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/estados-usuario/{{estadoUsuarioId}}" }
+        },
+        {
+          "name": "Actualizar asignación de estado",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_estado\": {{estadoId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/estados-usuario/{{estadoUsuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles de usuario",
+      "item": [
+        {
+          "name": "Listar roles de usuario",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/roles-usuario?page=1&limit=20" }
+        },
+        {
+          "name": "Crear asignación de rol",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": {{usuarioId}},\n  \"id_rol\": {{rolId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/roles-usuario"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('rolUsuarioId', String(pm.response.json().id_rol_usuario));"] } }]
+        },
+        {
+          "name": "Consultar asignación de rol por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/roles-usuario/{{rolUsuarioId}}" }
+        },
+        {
+          "name": "Actualizar asignación de rol",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_rol\": {{rolId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/roles-usuario/{{rolUsuarioId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permisos de rol",
+      "item": [
+        {
+          "name": "Listar permisos de rol",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/permisos-rol?page=1&limit=20" }
+        },
+        {
+          "name": "Crear asignación de permiso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_rol\": {{rolId}},\n  \"id_permiso\": {{permisoId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/permisos-rol"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('permisoRolId', String(pm.response.json().id_permiso_rol));"] } }]
+        },
+        {
+          "name": "Consultar asignación de permiso por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/permisos-rol/{{permisoRolId}}" }
+        },
+        {
+          "name": "Actualizar asignación de permiso",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_permiso\": {{permisoId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/permisos-rol/{{permisoRolId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar registros de prueba (ejecutar al final)",
+      "item": [
+        { "name": "Eliminar sesión", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/sesiones/{{sesionId}}" } },
+        { "name": "Eliminar asignación de estado", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/estados-usuario/{{estadoUsuarioId}}" } },
+        { "name": "Eliminar asignación de rol", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/roles-usuario/{{rolUsuarioId}}" } },
+        { "name": "Eliminar asignación de permiso", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/permisos-rol/{{permisoRolId}}" } },
+        { "name": "Eliminar estado", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/estados/{{estadoId}}" } },
+        { "name": "Eliminar rol", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/roles/{{rolId}}" } },
+        { "name": "Eliminar permiso", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/permisos/{{permisoId}}" } },
+        { "name": "Eliminar usuario", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/usuarios/{{usuarioId}}" } }
+      ]
+    }
+  ]
+}
