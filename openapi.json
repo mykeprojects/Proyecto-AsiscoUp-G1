@@ -63,6 +63,51 @@
     }
   ],
   "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Sistema"
+        ],
+        "summary": "Información básica del servicio",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API disponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "service",
+                    "docs",
+                    "health"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "AsiscoUp API"
+                    },
+                    "docs": {
+                      "type": "string",
+                      "example": "/api-docs"
+                    },
+                    "health": {
+                      "type": "string",
+                      "example": "/health"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [

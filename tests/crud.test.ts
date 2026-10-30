@@ -72,6 +72,15 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
   assert.ok(address && typeof address === "object");
 
   try {
+    const rootResponse = await fetch(`http://127.0.0.1:${address.port}/`);
+    assert.equal(rootResponse.status, 200);
+    assert.deepEqual(await rootResponse.json(), {
+      status: "ok",
+      service: "AsiscoUp API",
+      docs: "/api-docs",
+      health: "/health",
+    });
+
     const healthResponse = await fetch(`http://127.0.0.1:${address.port}/health`);
     assert.equal(healthResponse.status, 200);
     assert.deepEqual(await healthResponse.json(), { status: "ok" });
@@ -81,7 +90,9 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
     const swaggerHtml = await swaggerResponse.text();
     assert.match(swaggerHtml, /Documentación API AsiscoUp/);
     assert.match(swaggerHtml, /background-color: #17324d/);
-    assert.match(swaggerResponse.headers.get("content-security-policy") ?? "", /default-src 'self'/);
+    const contentSecurityPolicy = swaggerResponse.headers.get("content-security-policy") ?? "";
+    assert.match(contentSecurityPolicy, /default-src 'self'/);
+    assert.match(contentSecurityPolicy, /style-src 'self' 'unsafe-inline'/);
     assert.equal(swaggerResponse.headers.get("x-content-type-options"), "nosniff");
     assert.match(
       swaggerResponse.headers.get("strict-transport-security") ?? "",
@@ -118,6 +129,7 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
     assert.deepEqual(openApi.paths["/api/auth/login"].post.security, []);
     assert.deepEqual(openApi.security[0].bearerAuth, []);
     for (const path of [
+      "/",
       "/health",
       "/api/auth/registro",
       "/api/auth/perfil",

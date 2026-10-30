@@ -1,8 +1,12 @@
 import "dotenv/config";
 
+function defaultPort(env: NodeJS.ProcessEnv): number {
+  return Number(env["PORT"] ?? (env["NODE_ENV"] === "production" ? 10000 : 3000));
+}
+
 export function readPublicUrl(
   env: NodeJS.ProcessEnv = process.env,
-  fallbackPort = Number(env["PORT"] ?? 3000),
+  fallbackPort = defaultPort(env),
 ): string {
   const configuredUrl = env["PUBLIC_URL"]?.trim();
   if (!configuredUrl) {
@@ -46,7 +50,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
   if (url.hostname.includes("oovoswegjrisiqhumkya") || decodeURIComponent(url.username).endsWith(".oovoswegjrisiqhumkya")) {
     throw new Error("La conexión corresponde al grupo 2; configure la base independiente del grupo 1");
   }
-  const port = Number(env["PORT"] ?? 3000);
+  const port = defaultPort(env);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT debe estar entre 1 y 65535");
   readPublicUrl(env, port);
   const jwtSecret = env["JWT_SECRET"];

@@ -3,7 +3,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import { readPublicUrl } from "../config.js";
 
 export function getSwaggerServers(env: NodeJS.ProcessEnv = process.env) {
-  const port = Number(env["PORT"] ?? 3000);
+  const port = Number(env["PORT"] ?? (env["NODE_ENV"] === "production" ? 10000 : 3000));
   const localServer = {
     url: readPublicUrl({}, port),
     description: "Desarrollo local",

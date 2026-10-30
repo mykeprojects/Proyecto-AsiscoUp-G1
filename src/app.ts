@@ -20,9 +20,53 @@ export const app = express();
 app.disable("x-powered-by");
 
 // Middlewares globales
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 app.use(cors());
 app.use(express.json({ limit: "16kb" }));
+
+/**
+ * @openapi
+ * /:
+ *   get:
+ *     tags: [Sistema]
+ *     summary: Información básica del servicio
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: API disponible
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [status, service, docs, health]
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 service:
+ *                   type: string
+ *                   example: AsiscoUp API
+ *                 docs:
+ *                   type: string
+ *                   example: /api-docs
+ *                 health:
+ *                   type: string
+ *                   example: /health
+ */
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "AsiscoUp API",
+    docs: "/api-docs",
+    health: "/health",
+  });
+});
 
 /**
  * @openapi
