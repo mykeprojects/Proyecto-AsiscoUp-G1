@@ -55,5 +55,8 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
   readPublicUrl(env, port);
   const jwtSecret = env["JWT_SECRET"];
   if (!jwtSecret || Buffer.byteLength(jwtSecret) < 32) throw new Error("JWT_SECRET debe tener al menos 32 bytes");
-  return { jwtSecret, databaseUrl: value, port, host: env["HOST"] ?? "0.0.0.0" };
+  const host = env["NODE_ENV"] === "production"
+    ? "0.0.0.0"
+    : env["HOST"] ?? "0.0.0.0";
+  return { jwtSecret, databaseUrl: value, port, host };
 }

@@ -120,7 +120,7 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
     const openApi = await openApiResponse.json();
     assert.equal(openApi.openapi, "3.0.3");
     assert.equal(openApi.components.securitySchemes.bearerAuth.type, "http");
-    assert.deepEqual(openApi.servers.map(({ url }) => url), [
+    assert.deepEqual(openApi.servers.map((server: { url: string }) => server.url), [
       "https://api.example.test",
       `http://localhost:${process.env["PORT"] ?? 3000}`,
     ]);

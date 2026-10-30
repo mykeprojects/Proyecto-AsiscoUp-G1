@@ -24,8 +24,21 @@ test("PUBLIC_URL configura el servidor OpenAPI y usa localhost por defecto", () 
       JWT_SECRET: "clave-de-prueba-con-32-bytes-minimo",
       PUBLIC_URL: "https://api.example.com",
       NODE_ENV: "production",
+      HOST: "127.0.0.1",
+      PORT: "18473",
     }).port,
-    10000,
+    18473,
+  );
+  assert.equal(
+    readConfig({
+      DATABASE_URL: "postgresql://test@localhost/test",
+      JWT_SECRET: "clave-de-prueba-con-32-bytes-minimo",
+      PUBLIC_URL: "https://api.example.com",
+      NODE_ENV: "production",
+      HOST: "127.0.0.1",
+      PORT: "18473",
+    }).host,
+    "0.0.0.0",
   );
   assert.throws(() => readPublicUrl({ PUBLIC_URL: "ftp://api.example.com" }), /PUBLIC_URL/);
   assert.throws(() => readPublicUrl({ NODE_ENV: "production" }), /obligatorio/);
