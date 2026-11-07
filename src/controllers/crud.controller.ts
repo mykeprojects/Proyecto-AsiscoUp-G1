@@ -23,26 +23,54 @@ function enteroId(value: unknown): number {
   return id;
 }
 
+function paginacion(req: Request) {
+  const page = enteroConsulta(req.query["page"], 1, Number.MAX_SAFE_INTEGER);
+  const limit = enteroConsulta(req.query["limit"], 20, 100);
+  const skip = (page - 1) * limit;
+  if (!Number.isSafeInteger(skip)) throw new BadRequestException("La página solicitada es demasiado grande");
+  return { page, limit, skip };
+}
+
+async function responderListado(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  listar: (skip: number, limit: number) => Promise<unknown[]>,
+) {
+  try {
+    const { page, limit, skip } = paginacion(req);
+    const data = await listar(skip, limit);
+    res.json({ data, pagination: { page, limit } });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export function crearCrudConsultaController(service: Pick<CrudService, "listar" | "buscarPorId">) {
   return {
-    listar: async (req: Request, res: Response, next: NextFunction) => {
+    listar: (req: Request, res: Response, next: NextFunction) =>
+      responderListado(req, res, next, service.listar),
+    buscarPorId: async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const page = enteroConsulta(req.query["page"], 1, Number.MAX_SAFE_INTEGER);
-        const limit = enteroConsulta(req.query["limit"], 20, 100);
-        const skip = (page - 1) * limit;
-        if (!Number.isSafeInteger(skip)) throw new BadRequestException("La página solicitada es demasiado grande");
-        const data = await service.listar(skip, limit);
-        res.json({ data, pagination: { page, limit } });
+        res.json(await service.buscarPorId(enteroId(req.params["id"] ?? req.params["rol"])));
       } catch (error) {
         next(error);
       }
     },
-    buscarPorId: async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        res.json(await service.buscarPorId(enteroId(req.params["id"])));
-      } catch (error) {
-        next(error);
+  };
+}
+
+export function crearCrudListaPorRolController(
+  listarPorRol: (rol: string, skip: number, take: number) => Promise<unknown[]>,
+) {
+  return {
+    listar: (req: Request, res: Response, next: NextFunction) => {
+      const rol = req.params["rol"];
+      if (typeof rol !== "string" || !rol) {
+        next(new BadRequestException("El rol es obligatorio"));
+        return;
       }
+      return responderListado(req, res, next, (skip, limit) => listarPorRol(rol, skip, limit));
     },
   };
 }

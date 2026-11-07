@@ -26,6 +26,7 @@ export const usuarioService = crearCrudService(usuarioRepository, {
 
 export const usuarioConRolService = {
   listar: listarUsuariosConRol,
+  listarPorRol: (rol: string, skip: number, take: number) => listarUsuariosConRol(skip, take, rol),
   buscarPorId: async (id: number) => {
     const usuario = await buscarUsuarioConRol(id);
     if (!usuario) throw new NotFoundException("Recurso no encontrado");

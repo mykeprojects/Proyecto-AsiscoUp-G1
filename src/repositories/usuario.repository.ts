@@ -30,11 +30,24 @@ function simplificarRoles<T extends {
   return { ...datosUsuario, roles: rol_usuario.map(({ rol }) => rol) };
 }
 
-export async function listarUsuariosConRol(skip: number, take: number) {
+export async function listarUsuariosConRol(skip: number, take: number, nombreRol?: string) {
   const usuarios = await prisma.usuario.findMany({
     skip,
     take,
     orderBy: { id_usuario: "asc" },
+    ...(nombreRol
+      ? {
+          where: {
+            rol_usuario: {
+              some: {
+                rol: {
+                  nombre_rol: { equals: nombreRol, mode: "insensitive" },
+                },
+              },
+            },
+          },
+        }
+      : {}),
     select: {
       ...usuarioListado,
       rol_usuario: {
@@ -59,12 +72,7 @@ export async function buscarUsuarioConRol(id: number) {
 }
 
 export const usuarioRepository: CrudRepository<UsuarioCrear, UsuarioActualizar> = {
-  listar: (skip, take) => prisma.usuario.findMany({
-    skip,
-    take,
-    orderBy: { id_usuario: "asc" },
-    select: usuarioListado,
-  }),
+  listar: listarUsuariosConRol,
   buscarPorId: (id) => prisma.usuario.findUnique({ where: { id_usuario: id }, select: usuarioSeguro }),
   crear: (data) => prisma.usuario.create({ data, select: usuarioSeguro }),
   actualizar: (id, data) => prisma.usuario.update({ where: { id_usuario: id }, data, select: usuarioSeguro }),

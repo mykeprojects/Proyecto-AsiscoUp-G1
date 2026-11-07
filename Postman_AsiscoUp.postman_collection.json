@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "2f6d69d8-68d9-4c63-b17c-9f4dc90f7a16",
     "name": "AsiscoUp - Pruebas API",
-    "description": "Colección de solicitudes de prueba para todos los endpoints. Configure baseUrl, adminEmail y adminPassword. Ejecute en orden para que las solicitudes de creación guarden IDs que usarán las demás. Las consultas de escritura y eliminación modifican datos reales.",
+    "description": "Colección de pruebas para la API AsiscoUp. Para local use http://localhost:3000; para producción cambie baseUrl a https://proyecto-asiscoup-g1.onrender.com. Configure adminEmail y adminPassword con credenciales de un usuario ADMIN. Ejecute primero Autenticación > Iniciar sesión para guardar el JWT. Las solicitudes CRUD requieren ADMIN. Ejecute las solicitudes de creación antes de las consultas y la carpeta de eliminación. Las operaciones de escritura y eliminación modifican datos reales.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -29,7 +29,11 @@
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "description": "URL base local; para Render usar https://proyecto-asiscoup-g1.onrender.com"
+    },
     { "key": "adminEmail", "value": "admin@example.com" },
     { "key": "adminPassword", "value": "CambiarPassword123!" },
     { "key": "token", "value": "" },
@@ -43,6 +47,107 @@
     { "key": "permisoRolId", "value": "" }
   ],
   "item": [
+    {
+      "name": "Sistema y documentación",
+      "item": [
+        {
+          "name": "Verificar servicio (raíz)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          },
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La API está disponible', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "});",
+                  "pm.test('Incluye enlaces de documentación y health', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.docs).to.eql('/api-docs');",
+                  "  pm.expect(body.health).to.eql('/health');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          },
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health check responde correctamente', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.eql({ status: 'ok' });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api-docs/"
+          },
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Swagger UI está disponible', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.text()).to.include('Documentación API AsiscoUp');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener especificación OpenAPI",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api-docs.json"
+          },
+          "auth": { "type": "noauth" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Especificación OpenAPI disponible', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const spec = pm.response.json();",
+                  "  pm.expect(spec.openapi).to.eql('3.0.3');",
+                  "  pm.expect(spec.paths['/api/auth/login']).to.exist;",
+                  "  pm.expect(spec.paths['/health']).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Autenticación",
       "item": [
@@ -80,7 +185,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"General {{$timestamp}}\",\n  \"numero_identificacion\": \"PG{{$timestamp}}\",\n  \"correo_usuario\": \"postman.general.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\",\n  \"rol\": \"ESTUDIANTE\"\n}",
+              "raw": "{\n  \"nombres\": \"Valentina\",\n  \"apellidos\": \"Ríos Mendoza\",\n  \"numero_identificacion\": \"1098765432\",\n  \"correo_usuario\": \"valentina.rios@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\",\n  \"rol\": \"ESTUDIANTE\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro",
@@ -94,7 +199,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Estudiante {{$timestamp}}\",\n  \"numero_identificacion\": \"PE{{$timestamp}}\",\n  \"correo_usuario\": \"postman.estudiante.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Mateo\",\n  \"apellidos\": \"García López\",\n  \"numero_identificacion\": \"1098765433\",\n  \"correo_usuario\": \"mateo.garcia@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro/estudiante",
@@ -108,7 +213,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Administrador {{$timestamp}}\",\n  \"numero_identificacion\": \"PA{{$timestamp}}\",\n  \"correo_usuario\": \"postman.admin.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Camila\",\n  \"apellidos\": \"Pérez Salazar\",\n  \"numero_identificacion\": \"1098765434\",\n  \"correo_usuario\": \"camila.perez@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro/administrador"
@@ -121,7 +226,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Donante {{$timestamp}}\",\n  \"numero_identificacion\": \"PD{{$timestamp}}\",\n  \"correo_usuario\": \"postman.donante.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Andrés\",\n  \"apellidos\": \"Vargas Ruiz\",\n  \"numero_identificacion\": \"1098765435\",\n  \"correo_usuario\": \"andres.vargas@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro/donante",
@@ -135,7 +240,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Tallerista {{$timestamp}}\",\n  \"numero_identificacion\": \"PT{{$timestamp}}\",\n  \"correo_usuario\": \"postman.tallerista.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Lucía\",\n  \"apellidos\": \"Herrera Castro\",\n  \"numero_identificacion\": \"1098765436\",\n  \"correo_usuario\": \"lucia.herrera@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro/tallerista",
@@ -149,7 +254,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Postman\",\n  \"apellidos\": \"Acudiente {{$timestamp}}\",\n  \"numero_identificacion\": \"PAU{{$timestamp}}\",\n  \"correo_usuario\": \"postman.acudiente.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Daniel\",\n  \"apellidos\": \"Morales Peña\",\n  \"numero_identificacion\": \"1098765437\",\n  \"correo_usuario\": \"daniel.morales@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/auth/registro/acudiente",
@@ -189,7 +294,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"descripcion\": \"Postman estado {{$timestamp}}\"\n}",
+              "raw": "{\n  \"descripcion\": \"Estado de prueba activo\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/estados"
@@ -207,7 +312,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"descripcion\": \"Postman estado actualizado {{$timestamp}}\"\n}",
+              "raw": "{\n  \"descripcion\": \"Estado de prueba actualizado\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/estados/{{estadoId}}"
@@ -229,7 +334,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre_rol\": \"POSTMAN_{{$timestamp}}\"\n}",
+              "raw": "{\n  \"nombre_rol\": \"ROL_POSTMAN_PRUEBA\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/roles"
@@ -247,7 +352,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre_rol\": \"POSTMAN_ACTUALIZADO_{{$timestamp}}\"\n}",
+              "raw": "{\n  \"nombre_rol\": \"ROL_POSTMAN_ACTUALIZADO\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/roles/{{rolId}}"
@@ -269,7 +374,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"descripcion\": \"Postman permiso {{$timestamp}}\"\n}",
+              "raw": "{\n  \"descripcion\": \"Permiso de prueba Postman\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/permisos"
@@ -287,7 +392,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"descripcion\": \"Postman permiso actualizado {{$timestamp}}\"\n}",
+              "raw": "{\n  \"descripcion\": \"Permiso de prueba Postman actualizado\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/permisos/{{permisoId}}"
@@ -299,7 +404,7 @@
       "name": "Usuarios",
       "item": [
         {
-          "name": "Listar usuarios puros",
+          "name": "Listar usuarios con roles",
           "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios?page=1&limit=20" }
         },
         {
@@ -309,7 +414,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombres\": \"Usuario\",\n  \"apellidos\": \"Postman {{$timestamp}}\",\n  \"numero_identificacion\": \"UP{{$timestamp}}\",\n  \"correo_usuario\": \"postman.usuario.{{$timestamp}}@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
+              "raw": "{\n  \"nombres\": \"Sofía\",\n  \"apellidos\": \"Martínez Díaz\",\n  \"numero_identificacion\": \"1098765438\",\n  \"correo_usuario\": \"sofia.martinez@example.com\",\n  \"contraseña_usuario\": \"ClavePostman123!\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/usuarios"
@@ -334,12 +439,8 @@
           }
         },
         {
-          "name": "Listar usuarios con roles",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/con-rol?page=1&limit=20" }
-        },
-        {
-          "name": "Consultar usuario con roles por ID",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/con-rol/{{usuarioId}}" }
+          "name": "Filtrar usuarios por rol",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/TALLERISTA?page=1&limit=20" }
         }
       ]
     },
@@ -357,7 +458,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_usuario\": {{usuarioId}},\n  \"token_sesion\": \"postman-session-{{$timestamp}}\"\n}",
+              "raw": "{\n  \"id_usuario\": {{usuarioId}},\n  \"token_sesion\": \"sesion-postman-prueba-001\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/sesiones"
@@ -375,7 +476,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token_sesion\": \"postman-session-updated-{{$timestamp}}\"\n}",
+              "raw": "{\n  \"token_sesion\": \"sesion-postman-prueba-actualizada\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": "{{baseUrl}}/api/sesiones/{{sesionId}}"

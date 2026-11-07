@@ -124,7 +124,9 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
       "https://api.example.test",
       `http://localhost:${process.env["PORT"] ?? 3000}`,
     ]);
-    assert.ok(openApi.paths["/api/usuarios/{id}"].put);
+    assert.ok(openApi.paths["/api/usuarios/{rol}"].get);
+    assert.ok(openApi.paths["/api/usuarios/{rol}"].put);
+    assert.equal(openApi.paths["/api/usuarios/con-rol/{id}"], undefined);
     assert.ok(openApi.paths["/api/estados/{id}"].delete.responses["204"]);
     assert.deepEqual(openApi.paths["/api/auth/login"].post.security, []);
     assert.deepEqual(openApi.security[0].bearerAuth, []);
@@ -137,7 +139,7 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
       "/api/roles",
       "/api/permisos",
       "/api/usuarios",
-      "/api/usuarios/con-rol",
+      "/api/usuarios/{rol}",
       "/api/sesiones",
       "/api/estados-usuario",
       "/api/roles-usuario",
@@ -152,14 +154,18 @@ test("health y Swagger responden; las rutas protegidas exigen autenticación", a
     assert.equal(compatibilityResponse.status, 200);
 
     const bases = [
-      "/api/estados", "/api/roles", "/api/permisos", "/api/usuarios",
-      "/api/usuarios/con-rol", "/api/usuarios/con-rol/1",
+      "/api/estados", "/api/roles", "/api/permisos",             "/api/usuarios",
+      "/api/usuarios/TALLERISTA",
       "/api/sesiones", "/api/estados-usuario", "/api/roles-usuario", "/api/permisos-rol",
     ];
     const responses = await Promise.all(bases.map((path) =>
       fetch(`http://127.0.0.1:${address.port}${path}`),
     ));
     assert.deepEqual(responses.map(({ status }) => status), Array(bases.length).fill(401));
+    const removedRouteResponse = await fetch(
+      `http://127.0.0.1:${address.port}/api/usuarios/con-rol/1`,
+    );
+    assert.equal(removedRouteResponse.status, 401);
   } finally {
     await new Promise<void>((resolve, reject) => {
       server.close((error) => error ? reject(error) : resolve());
